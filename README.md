@@ -1,6 +1,4 @@
-Here's a simple and clean **README.md** file for your React Native **Task Manager App** using `expo-router`:
 
----
 
 ## 📋 Task Manager App
 
@@ -57,7 +55,7 @@ npx expo start
 app/
 ├── index.tsx          # Home screen
 ├── tasks.tsx          # Tasks screen
-├── _layout.tsx        # Layout (if used)
+├── _layout.tsx        # Layout 
 assets/
 ├── images/
 │   └── la.png         # Used for background/icon
