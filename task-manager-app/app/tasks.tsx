@@ -36,7 +36,10 @@ export default function TasksScreen() {
 
   const addTask = () => {
     if (!task.trim()) return;
-    setTasks([...tasks, { id: Date.now().toString(), title: task, completed: false }]);
+    setTasks([
+      ...tasks,
+      { id: Date.now().toString(), title: task.trim(), completed: false },
+    ]);
     setTask('');
   };
 
@@ -50,7 +53,8 @@ export default function TasksScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>📝 Task Manager</Text>
+      <Text style={styles.header}>📝 Task Manager</Text>
+
       <TextInput
         placeholder="Enter task..."
         value={task}
@@ -63,12 +67,24 @@ export default function TasksScreen() {
         data={tasks}
         keyExtractor={item => item.id}
         style={{ marginTop: 20 }}
-        ListEmptyComponent={<Text style={{ textAlign: 'center' }}>No tasks yet.</Text>}
+        ListEmptyComponent={
+          <Text style={{ textAlign: 'center', marginTop: 30, color: '#888' }}>
+            No tasks yet.
+          </Text>
+        }
         renderItem={({ item }) => (
           <View style={styles.taskRow}>
-            <TouchableOpacity onPress={() => toggleComplete(item.id)} style={{ flex: 1 }}>
-              <Text style={[styles.taskText, item.completed && styles.completed]}>
-                {item.title}
+            <TouchableOpacity
+              onPress={() => toggleComplete(item.id)}
+              style={{ flex: 1 }}
+            >
+              <Text
+                style={[
+                  styles.taskText,
+                  item.completed && styles.completed,
+                ]}
+              >
+                {item.completed ? '✔️ ' : '⬜ '} {item.title}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => deleteTask(item.id)}>
@@ -77,13 +93,29 @@ export default function TasksScreen() {
           </View>
         )}
       />
+
+      <View style={styles.summary}>
+        <Text>
+          Total: {tasks.length} | Completed: {tasks.filter(t => t.completed).length} | Remaining: {tasks.filter(t => !t.completed).length}
+        </Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 15 },
+  container: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#fff',
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    marginTop: 50, // ✅ Space added above header
+    textAlign: 'center',
+  },
   input: {
     borderWidth: 1,
     borderColor: '#aaa',
@@ -94,12 +126,29 @@ const styles = StyleSheet.create({
   taskRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#f9f9f9',
     padding: 12,
-    borderRadius: 6,
-    marginBottom: 8,
+    borderRadius: 8,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#ddd',
   },
-  taskText: { fontSize: 16 },
-  completed: { textDecorationLine: 'line-through', color: 'gray' },
-  delete: { marginLeft: 12, fontSize: 16 },
+  taskText: {
+    fontSize: 16,
+  },
+  completed: {
+    textDecorationLine: 'line-through',
+    color: 'gray',
+  },
+  delete: {
+    marginLeft: 12,
+    fontSize: 18,
+  },
+  summary: {
+    marginTop: 15,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    alignItems: 'center',
+  },
 });
