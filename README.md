@@ -8,13 +8,13 @@ A simple React Native task manager app built with **Expo Router**, using `AsyncS
 
 ### 🧩 Features
 
-* ✅ Add new tasks
-* ✅ Mark tasks as completed
-* ✅ Delete tasks
-* ✅ View total, completed, and remaining tasks
-* ✅ Clean and responsive UI
-* ✅ Home screen with image button redirect
-* ✅ Data persists using `AsyncStorage`
+*  Add new tasks
+*  Mark tasks as completed
+*  Delete tasks
+*  View total, completed, and remaining tasks
+* Clean and responsive UI
+*  Home screen with image button redirect
+*  Data persists using `AsyncStorage`
 
 ---
 
