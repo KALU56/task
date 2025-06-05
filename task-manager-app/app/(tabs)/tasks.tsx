@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Task = {
   id: string;
@@ -15,9 +16,23 @@ type Task = {
   completed: boolean;
 };
 
-export default function TaskScreen() {
+const STORAGE_KEY = 'TASKS';
+
+export default function TasksScreen() {
   const [task, setTask] = useState('');
   const [tasks, setTasks] = useState<Task[]>([]);
+
+  useEffect(() => {
+    const loadTasks = async () => {
+      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      if (stored) setTasks(JSON.parse(stored));
+    };
+    loadTasks();
+  }, []);
+
+  useEffect(() => {
+    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  }, [tasks]);
 
   const addTask = () => {
     if (!task.trim()) return;
@@ -35,19 +50,20 @@ export default function TaskScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>📋 Tasks</Text>
+      <Text style={styles.title}>📝 Task Manager</Text>
       <TextInput
-        placeholder="Add a new task..."
+        placeholder="Enter task..."
         value={task}
         onChangeText={setTask}
         style={styles.input}
       />
-      <Button title="Add Task" onPress={addTask} />
+      <Button title="ADD TASK" onPress={addTask} />
 
       <FlatList
         data={tasks}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         style={{ marginTop: 20 }}
+        ListEmptyComponent={<Text style={{ textAlign: 'center' }}>No tasks yet.</Text>}
         renderItem={({ item }) => (
           <View style={styles.taskRow}>
             <TouchableOpacity onPress={() => toggleComplete(item.id)} style={{ flex: 1 }}>
@@ -67,7 +83,7 @@ export default function TaskScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#fff' },
-  header: { fontSize: 24, fontWeight: 'bold', marginBottom: 15 },
+  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 15 },
   input: {
     borderWidth: 1,
     borderColor: '#aaa',
@@ -78,7 +94,7 @@ const styles = StyleSheet.create({
   taskRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f3f3f3',
+    backgroundColor: '#f2f2f2',
     padding: 12,
     borderRadius: 6,
     marginBottom: 8,
