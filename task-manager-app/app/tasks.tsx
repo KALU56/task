@@ -7,6 +7,7 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -21,6 +22,7 @@ const STORAGE_KEY = 'TASKS';
 export default function TasksScreen() {
   const [task, setTask] = useState('');
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [filter, setFilter] = useState<'all' | 'completed' | 'pending'>('all');
 
   useEffect(() => {
     const loadTasks = async () => {
@@ -35,11 +37,13 @@ export default function TasksScreen() {
   }, [tasks]);
 
   const addTask = () => {
-    if (!task.trim()) return;
-    setTasks([
-      ...tasks,
-      { id: Date.now().toString(), title: task.trim(), completed: false },
-    ]);
+    const trimmed = task.trim();
+    if (!trimmed) {
+      Alert.alert('Validation Error', 'Task title cannot be empty.');
+      return;
+    }
+
+    setTasks([...tasks, { id: Date.now().toString(), title: trimmed, completed: false }]);
     setTask('');
   };
 
@@ -50,6 +54,14 @@ export default function TasksScreen() {
   const deleteTask = (id: string) => {
     setTasks(tasks.filter(t => t.id !== id));
   };
+
+  const filteredTasks = tasks.filter(task =>
+    filter === 'all'
+      ? true
+      : filter === 'completed'
+      ? task.completed
+      : !task.completed
+  );
 
   return (
     <View style={styles.container}>
@@ -63,13 +75,32 @@ export default function TasksScreen() {
       />
       <Button title="ADD TASK" onPress={addTask} />
 
+      {/* ✅ Filter Buttons */}
+      <View style={styles.filterContainer}>
+        {['all', 'completed', 'pending'].map(f => (
+          <TouchableOpacity
+            key={f}
+            onPress={() => setFilter(f as any)}
+            style={[
+              styles.filterButton,
+              filter === f && styles.activeFilter,
+            ]}
+          >
+            <Text style={{ color: filter === f ? '#fff' : '#007bff' }}>
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* ✅ Task List */}
       <FlatList
-        data={tasks}
+        data={filteredTasks}
         keyExtractor={item => item.id}
         style={{ marginTop: 20 }}
         ListEmptyComponent={
           <Text style={{ textAlign: 'center', marginTop: 30, color: '#888' }}>
-            No tasks yet.
+            No tasks.
           </Text>
         }
         renderItem={({ item }) => (
@@ -94,6 +125,7 @@ export default function TasksScreen() {
         )}
       />
 
+      {/* ✅ Summary */}
       <View style={styles.summary}>
         <Text>
           Total: {tasks.length} | Completed: {tasks.filter(t => t.completed).length} | Remaining: {tasks.filter(t => !t.completed).length}
@@ -104,24 +136,29 @@ export default function TasksScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    marginTop: 50, // ✅ Space added above header
-    textAlign: 'center',
-  },
+  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
+  header: { fontSize: 24, fontWeight: 'bold', marginBottom: 15 },
   input: {
     borderWidth: 1,
     borderColor: '#aaa',
     padding: 10,
     borderRadius: 8,
     marginBottom: 10,
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 10,
+  },
+  filterButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#007bff',
+  },
+  activeFilter: {
+    backgroundColor: '#007bff',
   },
   taskRow: {
     flexDirection: 'row',
@@ -133,17 +170,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
   },
-  taskText: {
-    fontSize: 16,
-  },
-  completed: {
-    textDecorationLine: 'line-through',
-    color: 'gray',
-  },
-  delete: {
-    marginLeft: 12,
-    fontSize: 18,
-  },
+  taskText: { fontSize: 16 },
+  completed: { textDecorationLine: 'line-through', color: 'gray' },
+  delete: { marginLeft: 12, fontSize: 18 },
   summary: {
     marginTop: 15,
     paddingTop: 10,
