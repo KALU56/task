@@ -6,7 +6,7 @@ export default function HomeScreen() {
 
   return (
     <ImageBackground
-      source={require('../assets/images/la.png')} // ✅ Background image
+      source={require('../assets/images/la.png')}
       style={styles.background}
       resizeMode="cover"
     >
@@ -14,10 +14,9 @@ export default function HomeScreen() {
         <Text style={styles.title}>Welcome Home</Text>
         <Text style={styles.subtitle}>Use the Tasks tab to manage your to-dos.</Text>
 
-        {/* ✅ Touchable icon to navigate */}
         <TouchableOpacity onPress={() => router.push('/tasks')} style={styles.button}>
           <Image
-            source={require('../assets/images/la.png')} // ✅ You can use another icon/image here if desired
+            source={require('../assets/images/la.png')}
             style={styles.icon}
           />
           <Text style={styles.buttonText}>Go to Tasks</Text>
@@ -35,7 +34,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.8)', // Optional overlay to make text readable
+    backgroundColor: 'rgba(255,255,255,0.8)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
@@ -43,6 +42,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
+    marginTop: 80,  
     marginBottom: 10,
   },
   subtitle: {
