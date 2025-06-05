@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type Task = {
   id: string;
@@ -16,23 +15,9 @@ type Task = {
   completed: boolean;
 };
 
-const STORAGE_KEY = 'TASKS';
-
-export default function HomeScreen() {
+export default function TaskScreen() {
   const [task, setTask] = useState('');
   const [tasks, setTasks] = useState<Task[]>([]);
-
-  useEffect(() => {
-    const load = async () => {
-      const stored = await AsyncStorage.getItem(STORAGE_KEY);
-      if (stored) setTasks(JSON.parse(stored));
-    };
-    load();
-  }, []);
-
-  useEffect(() => {
-    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-  }, [tasks]);
 
   const addTask = () => {
     if (!task.trim()) return;
@@ -50,21 +35,19 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>📝 Task Manager</Text>
-
+      <Text style={styles.header}>📋 Tasks</Text>
       <TextInput
-        placeholder="Enter task..."
+        placeholder="Add a new task..."
         value={task}
         onChangeText={setTask}
         style={styles.input}
       />
-      <Button title="ADD TASK" onPress={addTask} />
+      <Button title="Add Task" onPress={addTask} />
 
       <FlatList
         data={tasks}
-        keyExtractor={item => item.id}
+        keyExtractor={(item) => item.id}
         style={{ marginTop: 20 }}
-        ListEmptyComponent={<Text style={{ textAlign: 'center' }}>No tasks yet.</Text>}
         renderItem={({ item }) => (
           <View style={styles.taskRow}>
             <TouchableOpacity onPress={() => toggleComplete(item.id)} style={{ flex: 1 }}>
@@ -84,23 +67,23 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#fff' },
-  title: { fontSize: 26, fontWeight: 'bold', marginBottom: 20 },
+  header: { fontSize: 24, fontWeight: 'bold', marginBottom: 15 },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    padding: 12,
+    borderColor: '#aaa',
+    padding: 10,
     borderRadius: 8,
     marginBottom: 10,
   },
   taskRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f2f2f2',
+    backgroundColor: '#f3f3f3',
     padding: 12,
     borderRadius: 6,
     marginBottom: 8,
   },
   taskText: { fontSize: 16 },
   completed: { textDecorationLine: 'line-through', color: 'gray' },
-  delete: { marginLeft: 10, fontSize: 16 },
+  delete: { marginLeft: 12, fontSize: 16 },
 });
