@@ -1,6 +1,6 @@
 
 
-## 📋 Task Manager App
+## 📋 Task Manager mobile app
 
 A simple React Native task manager app built with **Expo Router**, using `AsyncStorage` for local task persistence.
 
