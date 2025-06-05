@@ -31,7 +31,7 @@ A simple React Native task manager app built with **Expo Router**, using `AsyncS
 1. **Clone the repo:**
 
 ```bash
-git clone https://github.com/yourusername/task-manager-app.git
+git clone https://github.com/KALU56/task.git
 cd task-manager-app
 ```
 
