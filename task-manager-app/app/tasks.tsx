@@ -1,183 +1,85 @@
-import { useEffect, useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
-  Button,
-  FlatList,
-  TouchableOpacity,
   StyleSheet,
-  Alert,
+  Image,
+  TouchableOpacity,
+  ImageBackground,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 
-type Task = {
-  id: string;
-  title: string;
-  completed: boolean;
-};
-
-const STORAGE_KEY = 'TASKS';
-
-export default function TasksScreen() {
-  const [task, setTask] = useState('');
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [filter, setFilter] = useState<'all' | 'completed' | 'pending'>('all');
-
-  useEffect(() => {
-    const loadTasks = async () => {
-      const stored = await AsyncStorage.getItem(STORAGE_KEY);
-      if (stored) setTasks(JSON.parse(stored));
-    };
-    loadTasks();
-  }, []);
-
-  useEffect(() => {
-    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-  }, [tasks]);
-
-  const addTask = () => {
-    const trimmed = task.trim();
-    if (!trimmed) {
-      Alert.alert('Validation Error', 'Task title cannot be empty.');
-      return;
-    }
-
-    setTasks([...tasks, { id: Date.now().toString(), title: trimmed, completed: false }]);
-    setTask('');
-  };
-
-  const toggleComplete = (id: string) => {
-    setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
-  };
-
-  const deleteTask = (id: string) => {
-    setTasks(tasks.filter(t => t.id !== id));
-  };
-
-  const filteredTasks = tasks.filter(task =>
-    filter === 'all'
-      ? true
-      : filter === 'completed'
-      ? task.completed
-      : !task.completed
-  );
+export default function HomeScreen() {
+  const router = useRouter();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>📝 Task Manager</Text>
+    <ImageBackground
+      source={require('../assets/images/la.png')}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.overlay}>
+          <Text style={styles.title}>Welcome Home</Text>
+          <Text style={styles.subtitle}>Use the Tasks tab to manage your to-dos.</Text>
 
-      <TextInput
-        placeholder="Enter task..."
-        value={task}
-        onChangeText={setTask}
-        style={styles.input}
-      />
-      <Button title="ADD TASK" onPress={addTask} />
-
-      {/* ✅ Filter Buttons */}
-      <View style={styles.filterContainer}>
-        {['all', 'completed', 'pending'].map(f => (
           <TouchableOpacity
-            key={f}
-            onPress={() => setFilter(f as any)}
-            style={[
-              styles.filterButton,
-              filter === f && styles.activeFilter,
-            ]}
+            onPress={() => router.push('/tasks')}
+            style={styles.button}
           >
-            <Text style={{ color: filter === f ? '#fff' : '#007bff' }}>
-              {f.charAt(0).toUpperCase() + f.slice(1)}
-            </Text>
+            <Image
+              source={require('../assets/images/la.png')}
+              style={styles.icon}
+            />
+            <Text style={styles.buttonText}>Go to Tasks</Text>
           </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* ✅ Task List */}
-      <FlatList
-        data={filteredTasks}
-        keyExtractor={item => item.id}
-        style={{ marginTop: 20 }}
-        ListEmptyComponent={
-          <Text style={{ textAlign: 'center', marginTop: 30, color: '#888' }}>
-            No tasks.
-          </Text>
-        }
-        renderItem={({ item }) => (
-          <View style={styles.taskRow}>
-            <TouchableOpacity
-              onPress={() => toggleComplete(item.id)}
-              style={{ flex: 1 }}
-            >
-              <Text
-                style={[
-                  styles.taskText,
-                  item.completed && styles.completed,
-                ]}
-              >
-                {item.completed ? '✔️ ' : '⬜ '} {item.title}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => deleteTask(item.id)}>
-              <Text style={styles.delete}>🗑</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      />
-
-      {/* ✅ Summary */}
-      <View style={styles.summary}>
-        <Text>
-          Total: {tasks.length} | Completed: {tasks.filter(t => t.completed).length} | Remaining: {tasks.filter(t => !t.completed).length}
-        </Text>
-      </View>
-    </View>
+        </View>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#fff' },
-  header: { fontSize: 24, fontWeight: 'bold', marginBottom: 15 },
-  input: {
-    borderWidth: 1,
-    borderColor: '#aaa',
-    padding: 10,
-    borderRadius: 8,
-    marginBottom: 10,
+  background: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
   },
-  filterContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 10,
+  safeArea: {
+    flex: 1,
   },
-  filterButton: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#007bff',
-  },
-  activeFilter: {
-    backgroundColor: '#007bff',
-  },
-  taskRow: {
-    flexDirection: 'row',
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f9f9f9',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#ddd',
+    padding: 30,       // increased padding for overall spacing
+    paddingTop: 60,    // more space at top
   },
-  taskText: { fontSize: 16 },
-  completed: { textDecorationLine: 'line-through', color: 'gray' },
-  delete: { marginLeft: 12, fontSize: 18 },
-  summary: {
-    marginTop: 15,
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 40,  // bigger gap below title
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#555',
+    textAlign: 'center',
+    marginBottom: 60,  // bigger gap below subtitle
+  },
+  button: {
     alignItems: 'center',
+    marginTop: 50,     // more space before button
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+  },
+  icon: {
+    width: 80,
+    height: 80,
+    marginBottom: 25,  // bigger space between icon and text
+  },
+  buttonText: {
+    fontSize: 16,
+    color: '#007bff',
   },
 });
